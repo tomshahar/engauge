@@ -1,4 +1,5 @@
 {
+  "scheme": "engauge-scheme",
   "expo": {
     "name": "EnGauge",
     "slug": "EnGauge",
@@ -25,6 +26,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
