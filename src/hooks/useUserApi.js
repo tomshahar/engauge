@@ -62,6 +62,23 @@ export default function useUserApi() {
     }
   }
 
+  async function getProfiles(callback) {
+    try {
+      setLoading(true)
+  
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select()
+
+      if (data) callback(data)
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   //THIS ONE
   async function getProfileFromId(id, callback) {
     try {
@@ -92,6 +109,24 @@ export default function useUserApi() {
         .from('rsvp_requests')
         .select()
         .match({user_id: id, status: 'pending'})
+      
+      if (data) callback(data)
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function getSpecificRsvpRequest(userId, eventId, callback) {
+    try {
+      setLoading(true)
+  
+      const { data, error } = await supabase
+        .from('rsvp_requests')
+        .select()
+        .match({user_id: userId, event_id: eventId})
       
       if (data) callback(data)
       if (error) throw error
@@ -142,7 +177,7 @@ export default function useUserApi() {
 
 
 
-  return { updateProfile, getProfile, getProfileFromId, getRsvpRequestsOfUser, getGroupsOfUser, getEventsOfUser }
+  return { updateProfile, getProfile, getProfileFromId, getRsvpRequestsOfUser, getGroupsOfUser, getEventsOfUser, getSpecificRsvpRequest, getProfiles }
 }
 
 

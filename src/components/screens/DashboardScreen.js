@@ -7,98 +7,81 @@ import RsvpRequest from "../cards/RsvpRequest"
 import { Palette } from "../../constants/palette"
 import GroupThumbnail from "../cards/GroupThumbnail"
 import EventThumbnail from "../cards/EventThumbnail"
+import { router } from "expo-router"
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 export default function DashboardScreen(props) {
-  const [ nameInput, setNameInput ] = useState()
-  const [ typeInput, setTypeInput ] = useState()
-  const [ rsvpRequests, setRsvpRequests] = useState([])
-  const [ userGroups, setUserGroups ] = useState([])
   const [ userEvents, setUserEvents ] = useState([])
-  const [creatingGroup, setCreatingGroup] = useState(false)
+  const [ userGroups, setUserGroups ] = useState([])
+  const [ userRsvpRequests, setUserRsvpRequests ] = useState([])
+  const [ userPetitions, setUserPetitions ] = useState([])
 
-  const { loading } = useLoading()
-  const { createGroup, user, getGroupFromId, groups } = useData()
-  const { getRsvpRequestsOfUser, getGroupsOfUser, getEventsOfUser } = useUserApi()
+  //functions that return arrays
+  const { user, events, groups, rsvpRequests, eventsOfUser, groupsOfUser, rsvpRequestsOfUser, petitionsOfUser } = useData()
   
+  //load data and listen for updates
   useEffect(() => {
-    getRsvpRequestsOfUser(user.id, setRsvpRequests)
-    getGroupsOfUser(user.id, setUserGroups)
-    getEventsOfUser(user.id, setUserEvents)
-  }, [user])
+    setUserEvents(eventsOfUser(user.id))
+    setUserPetitions(petitionsOfUser(user.id))
+  }, [events])
 
-  return (<View style = {styles.container}>
+  useEffect(() => {
+    setUserGroups(groupsOfUser(user.id))
+  }, [groups])
+
+  useEffect(() => {
+    setUserRsvpRequests(rsvpRequestsOfUser(user.id))
+  }, [rsvpRequests])
+
+  console.log(events)
+  return (<ScrollView style = {styles.container}>
     <View>
       <View>
-        <Text style = {{fontSize: 24, fontWeight: 'bold'}}>Your Groups</Text>
+        <Text style = {{fontSize: 20, fontWeight: 'bold', marginTop: 16, color: Palette.primary}}>Upcoming Events</Text>
+        <Text style = {{fontSize: 14, marginTop: 2, color: '#949494'}}>You're going!</Text>
         <ScrollView horizontal>
-          {userGroups?.map((group) => {
-            return <View style = {{marginRight: 24, paddingVertical: 8}}><GroupThumbnail group = {group}/></View>
-          })}
+          {userEvents?.reverse().length > 0 ? userEvents?.map((event) => {
+            return <View style = {{marginRight: 12, paddingVertical: 8}}><EventThumbnail event = {event}/></View>
+          }) : <View style = {{alignItems: 'center', flexDirection: 'row', marginVertical: 8}}>
+            <Text>You haven't responded</Text>
+            <View style = {{backgroundColor: '#CAEFE6', height: 18, width: 18, alignItems: 'center', justifyContent: 'center', marginHorizontal: 4, borderRadius: 4}}><Ionicons size = {16} name = 'checkmark' /></View> 
+            <Text>to any upcoming events.</Text>
+          </View>}
         </ScrollView>
       </View>
-      {creatingGroup ? <View>
-        <View style = {{marginBottom: 8,}}>
-          <Input
-            disabled = {loading}
-            label='Name'
-            onChangeText={(text) => setNameInput(text)}
-            value={nameInput}
-            placeholder='Name'
-            autoCapitalize={'none'}
-          />
-        </View>
-        <View style = {{marginBottom: 8,}}>
-          <Input
-            disabled = {loading}
-            label='Type'
-            onChangeText={(text) => setTypeInput(text)}
-            value={typeInput}
-            placeholder='Type (eg. residence, club)'
-            autoCapitalize={'none'}
-          />
-        </View>
-        <View style = {{flexDirection: 'row'}}>
-          <View style = {{marginRight: 6, marginLeft: 'auto'}}>
-            <Button
-              onPress = {() => {
-                setCreatingGroup(false)
-              }}
-            >Cancel</Button>
-          </View>
-          <Button
-            color = {Palette.primary}
-            textStyle = {{color: 'white', fontWeight: 'bold'}}
-            onPress = {() => {
-              createGroup({name: nameInput, type: typeInput})
-              setCreatingGroup(false)
-            }}
-          >Create Group</Button>
+    </View>
 
-        </View>
+    <Text style = {{marginTop: 32, fontSize: 20, fontWeight: 'bold', color: Palette.primary}}>RSVP Requests</Text>
+    <Text style = {{fontSize: 14, marginTop: 2, color: '#949494'}}>Can you make it?</Text>
+    <ScrollView horizontal style = {{}}>
+      {userRsvpRequests?.reverse().length > 0 ? userRsvpRequests?.map((request) => {
+        return <View style = {{marginRight: 12}}><RsvpRequest request = {request} /></View>
+      }) : <Text style = {{marginVertical: 8}}>None of your groups have outsdanding RSVP requests.</Text>}
+    </ScrollView>
+    <Text style = {{marginTop: 32, fontSize: 20, fontWeight: 'bold', color: Palette.primary}}>Petitions</Text>
+    <Text style = {{fontSize: 14, marginTop: 2, color: '#949494'}}>What do you think?</Text>
+    <ScrollView horizontal style = {{}}>
+      {userPetitions?.length > 0 ? userPetitions?.map((petition) => {
+        return <View style = {{marginRight: 12}}><EventThumbnail event = {petition} /></View>
+      })  : <Text style = {{marginVertical: 8}}>None of your groups have created any petitions.</Text>}
+    </ScrollView>
 
-      </View> : <View style = {{flexDirection: 'row'}}>
-        <Button
-          
-          onPress = {() => {setCreatingGroup(true)}}
-        >Create Group</Button>
-      </View>}
       <View>
-        <Text style = {{fontSize: 24, fontWeight: 'bold', marginTop: 16,}}>Upcoming Events</Text>
-        <ScrollView horizontal>
-          {userEvents?.map((event) => {
-            return <View style = {{marginRight: 24, paddingVertical: 8}}><EventThumbnail event = {event}/></View>
-          })}
+        <View style = {{flexDirection: 'row', marginTop: 32, alignItems: 'center', justifyContent: 'space-between'}}>
+
+          <Text style = {{fontSize: 20, fontWeight: 'bold', color: Palette.primary}}>Your Groups</Text>
+          <Button
+            onPress = {() => {router.navigate({pathname: '(tabs)/browse/group/create_group'})}}
+          >Create Group</Button>
+        </View>
+        <ScrollView>
+          {userGroups?.length > 0 ? userGroups?.reverse().map((group) => {
+            return <View style = {{paddingVertical: 8}}><GroupThumbnail group = {group}/></View>
+          }) : <Text style = {{marginVertical: 8}}>You haven't joined any groups yet.</Text>}
         </ScrollView>
       </View>
-    </View>
-
-    <Text style = {{marginTop: 16, fontSize: 24, fontWeight: 'bold'}}>RSVP Requests</Text>
-    <View style = {{marginTop: 8}}>
-      {rsvpRequests?.map((request) => {
-        return <RsvpRequest request = {request} />
-      })}
-    </View>
-  </View>)
+  </ScrollView>)
 }
 
 const styles = StyleSheet.create({

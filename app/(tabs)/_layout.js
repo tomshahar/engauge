@@ -13,7 +13,7 @@ import AuthScreen from '../../src/components/screens/AuthScreen'
 //re add title bar icon
 export default function TabLayout() { 
 
-
+  
 
 
   return (

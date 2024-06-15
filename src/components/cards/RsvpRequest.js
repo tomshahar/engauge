@@ -22,9 +22,9 @@ export default function RsvpRequest(props) {
   }, [event])
 
   return (<View style = {styles.container}>
-    <View style = {{maxWidth: '66%'}}>
+    {props.noThumbnail ? null : <View>
       {event ? <EventThumbnail event = {event}/> : null}
-    </View>
+    </View>}
     <View style = {{flexDirection: 'row', alignItems: 'center', marginTop: 8}}>
       <IconButton
         onPress = {() => {
@@ -36,6 +36,19 @@ export default function RsvpRequest(props) {
         iconColor = 'black'
 
       ></IconButton>
+      <View style = {{marginLeft: 6}}>
+        <IconButton
+          onPress = {() => {
+          }}
+          name = 'flag-outline'
+          size = {24}
+          color = '#F7E480'
+          iconColor = 'black'
+          
+
+        ></IconButton>
+      </View>
+
       <View style = {{marginLeft: 6}}>
         <IconButton
           onPress = {() => {
@@ -55,10 +68,6 @@ export default function RsvpRequest(props) {
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'no-wrap',
-    alignItems: 'center'
-    
+    alignItems: 'center',
   },
 })

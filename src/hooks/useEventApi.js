@@ -14,7 +14,6 @@ export default function useEventApi() {
     try {
       setLoading(true)
 
-
       const { error } = await supabase
         .from('events')
         .insert(data)
@@ -81,7 +80,6 @@ export default function useEventApi() {
 
   //comment is an object with event_id, replied_comment_id (if reply), and content
   async function insertComment(comment) {
-    console.log('test2')
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -205,6 +203,22 @@ export default function useEventApi() {
       setLoading(false)
     }
   }
+  
+  async function getLikes(callback) {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('likes')
+        .select()
+
+        if (data) callback(data)
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   //THIS ONE
   async function getRepliesOfComment(commentId, callback) {
@@ -242,7 +256,88 @@ export default function useEventApi() {
     }
   }
 
-  return { insertEvent, updateEvent, deleteEvent, deleteComment, insertComment, updateRsvp, getEvents, getEventComments, getRsvpCount, getEventsOfGroup, getEventById, getRepliesOfComment }  
+  async function getRsvpCounts(callback) {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('event_rsvp_counts')
+        .select()
+
+        if (data) callback(data)
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+  async function getRsvpRequests(callback) {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('rsvp_requests')
+        .select()
+        
+      if (error) throw error
+      if (data) callback(data)
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function getComments(callback) {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('event_comments')
+        .select()
+        
+      if (error) throw error
+      if (data) callback(data)
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function likeEvent(eventId, userId) {
+    try {
+      setLoading(true)
+      const { error } = await supabase
+        .from('likes')
+        .insert({event_id: eventId, user_id: userId})
+        
+      if (error) throw error
+      if (data) callback(data)
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+  async function removeLike(eventId, userId) {
+    try {
+      setLoading(true)
+      const { error } = await supabase
+        .from('likes')
+        .delete()
+        .match({'user_id': userId, 'event_id': eventId})
+
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error) Alert.alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+  return { insertEvent, updateEvent, deleteEvent, removeLike, deleteComment, insertComment, updateRsvp, getEvents, getEventComments, getRsvpCount, getEventsOfGroup, getEventById, getRepliesOfComment, getRsvpCounts, getRsvpRequests, getComments, getLikes, likeEvent }  
 }
 
 

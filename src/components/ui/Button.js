@@ -4,17 +4,17 @@ export function Button(props) {
   return (
     <Pressable
       {...props}
-      style = {{
+      style = {({pressed}) => [{
         backgroundColor: props.color ? props.color : '#EAEAEA',
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 4,
-      }}
+      }, pressed ? {backgroundColor: Palette.primary, color: 'white'} : null]}
     >
-      <Text 
-        style = {props.textStyle ? props.textStyle : {fontSize: 16, color: 'black'}}
+      {({pressed}) => (<Text 
+        style = {props.textStyle ? props.textStyle : {fontSize: 16, color: !pressed ? 'black' : 'white'}}
         
-      >{props.children}</Text>
+      >{props.children}</Text>)}
     </Pressable>
   )
 }

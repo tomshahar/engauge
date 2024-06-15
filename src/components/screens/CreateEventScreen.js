@@ -1,28 +1,28 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, TextInput, Image } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useNavigation } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Palette } from '../../../../src/constants/palette';
-import { Input } from '../../../../src/components/ui/Input';
-import { Button } from '../../../../src/components/ui/Button';
+import { Palette } from '../../constants/palette';
+import { Input } from '../ui/Input';
+import { Button } from '../ui/Button';
 import Checkbox from 'expo-checkbox';
-import { useEventApi } from '../../../../src/hooks';
+import { useEventApi, useData } from '../../hooks';
 
 
-export default function create_event() {
+export default function create_event(props) {
   const { groupName, groupId } = useLocalSearchParams()
   const navigation = useNavigation()
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date())
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [privacy, setPrivacy] = useState(false);
-  const [rsvps, setRsvps] = useState(false);
+  const [privacy, setPrivacy] = useState(false)
+  const [rsvps, setRsvps] = useState(false)
+  const [imageUri, setImageUri] = useState()
 
-  const { insertEvent } = useEventApi()
-
+  const { pickImage, createEvent } = useData()
 
   function onChangeStartDate(event, selectedDate) {
     const currentDate = selectedDate
@@ -44,14 +44,25 @@ export default function create_event() {
       description: description,
       privacy: privacy,
       rsvps_requested: rsvps,
-      group_id: groupId
+      group_id: groupId,
+      image_uri: imageUri,
+      petition: props.petition ? props.petition : false
     }
-    insertEvent(data)
+    console.log('insert event wrapper')
+    console.log(data)
+    createEvent(data)
+  }
+
+  async function handlePickImage() {
+    const uri = await pickImage();
+    if (uri) {
+      setImageUri(uri);
+    }
   }
 
   useEffect(() => {
-    navigation.setOptions({ headerTitle: 'Create Event'});
-  }, [navigation]);
+    navigation.setOptions({ headerTitle: props.petition ? 'Create Petition' : 'Create Event'});
+  }, [navigation])
 
 
   return (
@@ -67,7 +78,7 @@ export default function create_event() {
 
 
       <View style = {styles.datePickerSection}>
-        <Text style = {{fontSize: 16}}>Start Time</Text>
+        <Text style = {{fontSize: 16}}>{props.petition ? 'Potential start time': 'Start Time'}</Text>
         <DateTimePicker
           value={startDate}
           mode={'datetime'}
@@ -77,7 +88,7 @@ export default function create_event() {
         />
       </View>
       <View style = {styles.datePickerSection}>
-        <Text style = {{fontSize: 16}}>End Time</Text>
+        <Text style = {{fontSize: 16}}>{props.petition ? 'Potential end time': 'End Time'}</Text>
         <DateTimePicker
           value={endDate}
           mode={'datetime'}
@@ -90,13 +101,13 @@ export default function create_event() {
         <Input
           value={description}
           onChangeText={setDescription}
-          placeholder = "Description"
+          placeholder = {props.petition ? 'A petition can help solicit feedback from your members without committing to the event! Eg. What type of food would you like to see?' : 'Description'}
           multiline 
           numberOfLines = {20}
         ></Input>
       </View>
 
-      <View style = {{flexDirection: 'row', justifyContent: 'space-around', marginTop: 16}}>
+      { !props.petition ? <View style = {{flexDirection: 'row', justifyContent: 'space-around', marginTop: 16}}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Checkbox
             style={{margin: 8}}
@@ -115,13 +126,19 @@ export default function create_event() {
           />
           <Text style={{fontSize: 16}}>Rsvps requested</Text>
         </View>
+      </View> : null}
+      <View style = {{alignItems: 'center', paddingTop: 16}}>
+        <Button onPress={handlePickImage} > Pick an image</Button>
+        {imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 100, marginTop: 8 }} />}
       </View>
-      <View style = {{flexDirection: 'row', justifyContent: 'center'}}>
+
+      <View style = {{flexDirection: 'row', justifyContent: 'center', paddingTop: 8}}>
         <Button
           onPress = {() => {
             insertEventWrapper()
+            router.navigate({pathname: '(tabs)/browse/group/[id]', params: { id: groupId } })
           }}
-        >Create Event</Button>
+        >{ props.petition ? 'Create Petition' : 'Create Event'}</Button>
       </View>
 
     </View>

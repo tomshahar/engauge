@@ -6,7 +6,6 @@ export default function useAuthApi() {
   const { setLoading } = useLoading()
 
   async function signInWithEmail(email, password) {
-    console.log('got here')
 
     try {
       setLoading(true)
@@ -14,7 +13,6 @@ export default function useAuthApi() {
         email: email,
         password: password,
       })
-      console.log(error)
 
       if (error) throw error
     } catch (error) {

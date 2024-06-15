@@ -16,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tomshahar.EnGauge"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +30,20 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8ee5fab6-e249-4287-b23f-00fdb3801bb7"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8ee5fab6-e249-4287-b23f-00fdb3801bb7"
+    }
   }
 }

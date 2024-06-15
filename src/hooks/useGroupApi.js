@@ -28,7 +28,7 @@ export default function useGroupApi() {
     }
   }
 
-  async function insertGroup(session, data) {
+  async function insertGroup(session, data, callback) {
     try {
       setLoading(true)
       const updates = {
@@ -36,10 +36,10 @@ export default function useGroupApi() {
         user_id: session?.user.id,
         created_at: new Date(),
       }
-      const { error } = await supabase.from('groups').insert(updates)
+      const { newGroup, error } = await supabase.from('groups').insert(updates).select()
 
       if (error) throw error
-
+      if (newGroup) callback(newGroup.data[0])
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message)
 
